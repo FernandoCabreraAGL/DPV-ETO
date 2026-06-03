@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DPV · ETO Horario — 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;font-size:12px;background:#F7F8FA;padding:16px;color:#222}
+h1{font-size:15px;font-weight:700;margin-bottom:4px;color:#1a1a2e}
+.sub{font-size:11px;color:#666;margin-bottom:10px}
+.bar{display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap}
+.bar-sep{width:1px;height:26px;background:#ccc;margin:0 2px}
+.bar button{padding:5px 16px;font-size:11.5px;font-weight:600;cursor:pointer;border-radius:7px;border:1.5px solid #ccc;background:#fff;color:#555;transition:all .15s}
+.bar button.on-view{background:#2c2c3e;color:#fff;border-color:#2c2c3e}
+.bar button.on-dpv{background:#185FA5;color:#fff;border-color:#185FA5}
+.bar button.on-eto{background:#0F6E56;color:#fff;border-color:#0F6E56}
+.lgrow{display:flex;gap:12px;margin-bottom:10px;align-items:center;flex-wrap:wrap}
+.lg{display:flex;align-items:center;gap:4px;font-size:10.5px;color:#555}
+.lgsw{width:13px;height:13px;border-radius:3px;border:1px solid rgba(0,0,0,.18);flex-shrink:0}
+.wrap{overflow-x:auto;border:1px solid #dde;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+table{border-collapse:collapse;width:100%;min-width:max-content}
+th,td{border:1px solid #e2e4ea;padding:4px 7px;text-align:center;white-space:nowrap;font-size:11.5px}
+.thr{background:#2c2c3e;color:#fff;font-size:10.5px;font-weight:700;min-width:46px;position:sticky;left:0;z-index:2}
+.tdr{background:#eef0f4;color:#555;font-size:10.5px;font-weight:600;position:sticky;left:0;z-index:1;min-width:46px}
+.hw21{background:#7B3FA0;color:#fff;font-size:11px;font-weight:700;padding:5px 7px}
+.hw22{background:#B05A10;color:#fff;font-size:11px;font-weight:700;padding:5px 7px}
+.dh21{background:#E3CFF5;color:#431669;font-size:10.5px;font-weight:600;padding:3px 5px;line-height:1.45}
+.dh22{background:#FAD9B8;color:#6B3208;font-size:10.5px;font-weight:600;padding:3px 5px;line-height:1.45}
+.f21{background:#EAD5FA;color:#431669}
+.f22{background:#FAE8D5;color:#6B3208}
+.hyr{background:#1a3a5c;color:#fff;font-size:11px;font-weight:700;padding:5px 10px}
+.hmabr{background:#2255A4;color:#fff;font-size:10.5px;font-weight:600;padding:3px 8px;min-width:90px}
+.hmmay{background:#0F6E56;color:#fff;font-size:10.5px;font-weight:600;padding:3px 8px;min-width:90px}
+.hmjun{background:#7B3FA0;color:#fff;font-size:10.5px;font-weight:600;padding:3px 8px;min-width:90px}
+.fabr{background:#C8DCFA;color:#0C2F70;font-weight:700}
+.fmay{background:#B8EDD9;color:#064535;font-weight:700}
+.fjun{background:#EAD5FA;color:#431669;font-weight:700}
+.favg{background:#f0fdf4;color:#166534;font-weight:700;font-style:italic}
+.cb{background:#DBEAFE;color:#1e3a8a}
+.cg{background:#DCFCE7;color:#14532d}
+.cr{background:#FEE2E2;color:#7f1d1d;font-weight:700}
+.cn{background:#F1EFF8;color:#bbb}
+.tft td{border-top:2.5px solid #aab;font-weight:700;font-size:11px}
+.tft .tdr{text-align:left}
+.tavg td{border-top:1.5px dashed #a7f3d0;font-style:italic}
+.tavg .tdr{text-align:left;color:#065f46}
+#arc-wrap{border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.1);position:relative}
+#arc-sel-wrap{position:absolute;left:50%;transform:translateX(-50%);text-align:center;z-index:10;top:74%}
+#arc-sel-wrap label{display:block;font-size:10px;font-weight:700;color:#0c4a6e;margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase}
+#sel-dia{font-size:13px;font-weight:700;padding:6px 18px;border-radius:9px;border:2px solid #0369a1;background:rgba(255,255,255,.92);color:#0c4a6e;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.18);outline:none}
+.note{font-size:10.5px;color:#888;margin-top:8px;line-height:1.6}
+.footer{font-size:10.5px;color:#666;text-align:left;margin-top:6px;border-top:1px solid #dde;padding-top:6px}
+</style>
+</head>
+<body>
+<h1>DPV &amp; ETO Horario — 2026</h1>
+<p class="sub">Cultivo de arándano · Agualima S.A.C. · 06:00 – 19:00</p>
+
+<div class="bar">
+  <button id="bhoras"   onclick="setVista('horas')">Horas</button>
+  <button id="bdiario"  class="on-view" onclick="setVista('diario')">Diario</button>
+  <button id="bmensual" onclick="setVista('mensual')">Mensual</button>
+  <div class="bar-sep"></div>
+  <button id="bdpv" class="on-dpv" onclick="setVar('dpv')">DPV (kPa)</button>
+  <button id="beto" onclick="setVar('eto')">ETO (mm/h)</button>
+</div>
+
+<div class="lgrow">
+  <div class="lg"><div class="lgsw" style="background:#DBEAFE"></div>&lt; 0.5 — bajo</div>
+  <div class="lg"><div class="lgsw" style="background:#DCFCE7"></div>0.5 – 1.5 — moderado</div>
+  <div class="lg"><div class="lgsw" style="background:#FEE2E2"></div>&gt; 1.5 — alto</div>
+  <div class="lg"><div class="lgsw" style="background:#F1EFF8;border:1px solid #ccc"></div>— sin dato</div>
+</div>
+
+<div id="vis-content"></div>
+
+<p class="note" id="nota-diario" style="display:none">
+  Fila inferior: DPV máx. del día / ETO acumulada diaria, según gráficos de semana.
+</p>
+<p class="note" id="nota-mensual" style="display:none">
+  Vista mensual: promedio por franja horaria de días con registro válido.<br>
+  Abril: 4 días (27–30 Abr) · Mayo: 24 días (04–27 May).<br>
+  Fila cursiva: promedio horario del mes. Fila inferior: promedio del DPV máx. diario / ETO media diaria.
+</p>
+<p class="note" id="nota-horas" style="display:none">
+  Nivel exterior: DPV (kPa) · Nivel interior: ETO (mm/h).<br>
+  Azul &lt; 0.5 · Verde 0.5–1.5 · Rojo &gt; 1.5. Burbuja con borde dorado: valor máximo del día.
+</p>
+<p class="footer">Ing. Fernando Cabrera — Agualima S.A.C. &nbsp;|&nbsp; 29-05-2026</p>
+
+<script>
+const H=['06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00'];
+
+const ALL_DPV={
+  '27/04':[0.1,0.2,0.6,0.9,1.4,1.6,1.6,1.0,1.5,1.2,0.8,0.5,null,null],
+  '28/04':[0.2,null,0.2,0.3,0.4,1.7,1.6,1.6,1.2,0.9,0.6,null,null,null],
+  '29/04':[0.2,0.2,0.2,0.3,1.1,1.5,1.8,1.8,1.6,1.4,1.1,0.6,0.5,null],
+  '30/04':[0.2,0.2,0.5,1.0,1.4,2.1,2.2,1.4,1.7,1.2,0.8,0.6,0.4,0.3],
+  '04/05':[0.2,0.2,0.3,0.4,0.9,1.8,1.7,1.5,1.0,0.7,0.5,0.3,null,null],
+  '05/05':[null,null,0.9,1.6,2.2,2.3,2.2,2.0,1.8,0.9,0.6,0.5,0.4,null],
+  '06/05':[0.2,0.2,0.2,0.3,1.7,0.7,1.6,0.8,0.7,0.5,0.4,0.3,0.2,null],
+  '07/05':[0.2,0.2,0.3,0.4,0.5,0.5,0.5,0.4,0.4,0.4,0.4,0.4,0.3,0.3],
+  '08/05':[0.2,0.2,0.2,0.3,0.4,0.5,0.5,0.5,0.5,0.5,0.4,0.4,0.3,0.3],
+  '09/05':[0.2,0.2,0.3,0.8,1.2,1.5,1.7,1.5,1.3,1.3,0.9,0.6,0.4,null],
+  '10/05':[0.1,0.1,0.1,0.1,0.2,0.2,1.2,0.7,0.6,0.5,0.4,0.3,0.3,0.2],
+  '11/05':[0.1,0.2,0.5,1.2,1.2,2.4,2.4,2.2,1.8,1.3,1.0,0.7,0.2,null],
+  '12/05':[0.2,0.2,0.3,0.5,1.0,1.3,1.7,1.9,1.8,1.6,1.2,0.9,0.4,null],
+  '13/05':[0.2,0.2,0.2,0.2,0.3,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4],
+  '14/05':[0.2,0.2,0.3,0.6,0.7,0.8,0.9,1.2,1.2,1.0,0.7,0.4,null,null],
+  '15/05':[0.2,0.2,0.4,0.5,0.8,0.8,1.5,1.3,1.3,0.9,0.8,0.5,0.3,0.2],
+  '16/05':[0.1,0.1,0.1,0.3,0.4,0.7,1.7,1.6,1.6,1.3,0.9,0.6,0.3,null],
+  '17/05':[0.1,0.2,0.2,0.4,0.5,0.5,0.8,0.9,1.1,0.9,0.7,0.5,0.2,null],
+  '18/05':[0.2,0.3,0.4,1.2,1.6,1.8,1.9,1.8,1.5,1.3,0.9,0.8,0.5,null],
+  '19/05':[0.1,0.1,0.2,0.9,1.6,1.6,1.5,1.2,0.8,0.7,0.8,0.7,0.2,0.2],
+  '20/05':[0.2,0.3,0.4,0.6,0.7,1.0,1.6,1.7,1.6,1.2,0.9,0.8,0.5,0.2],
+  '21/05':[0.2,0.3,0.7,1.1,1.3,1.7,1.6,1.5,1.4,1.1,0.8,0.8,0.2,0.2],
+  '22/05':[0.2,0.3,0.7,1.0,1.4,1.7,1.8,1.9,1.7,1.4,0.9,0.8,0.2,0.2],
+  '23/05':[0.1,0.1,0.5,1.1,1.5,1.7,2.0,1.8,1.8,1.6,1.4,0.9,0.8,0.2],
+  '24/05':[0.1,0.1,0.6,1.2,1.4,1.8,1.8,1.7,1.5,1.2,0.9,0.8,0.2,0.2],
+  '25/05':[0.1,0.1,0.5,0.9,1.4,1.6,1.7,1.6,1.6,1.2,0.8,0.7,null,null],
+  '26/05':[0.1,0.2,0.7,1.0,1.6,1.6,1.6,1.4,1.2,0.9,0.8,0.8,null,null],
+  '27/05':[0.2,0.3,0.3,0.4,0.5,0.5,0.6,0.7,0.6,0.6,0.5,0.5,0.4,0.4],
+  '28/05':[0.4,0.3,0.3,0.3,0.3,0.3,0.3,0.4,0.5,0.8,1.5,1.7,1.7,1.6],
+  '29/05':[0.2,0.3,0.3,0.3,0.2,0.2,0.2,0.4,0.9,1.2,1.6,1.7,2.0,1.8],
+  '30/05':[0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.4,0.8,1.2,1.8,2.0,1.8,1.8],
+  '31/05':[0.2,0.2,0.2,0.2,0.1,0.1,0.1,0.3,0.8,1.2,1.5,1.6,1.8,1.7],
+  '01/06':[0.2,0.1,0.1,0.1,0.2,0.2,0.2,0.2,0.2,0.3,0.3,0.6,1.1,1.4],
+  '02/06':[0.3,0.3,0.3,0.2,0.2,0.2,0.2,0.2,0.3,0.4,0.6,0.7,0.6,0.7]
+};
+const ALL_ETO={
+  '27/04':[0.00,0.00,0.10,0.18,0.28,0.38,0.74,0.00,0.28,0.36,0.20,0.10,null,null],
+  '28/04':[0.00,null,0.00,0.05,0.08,0.46,0.43,0.51,0.15,0.05,0.03,null,null,null],
+  '29/04':[0.00,0.00,0.00,0.05,0.08,0.28,0.46,1.09,0.51,0.38,0.18,0.08,0.00,null],
+  '30/04':[0.00,0.00,0.20,0.33,0.00,0.99,0.00,0.36,0.36,0.10,0.08,0.05,0.00,0.00],
+  '04/05':[0.00,0.00,0.00,0.10,0.33,0.84,0.00,0.46,0.38,0.18,0.10,0.03,null,null],
+  '05/05':[null,null,0.15,0.23,0.00,0.48,1.12,0.00,0.51,0.00,0.10,0.05,0.03,null],
+  '06/05':[0.00,0.00,0.00,0.10,0.46,0.00,0.41,0.00,0.13,0.10,0.05,0.03,0.00,null],
+  '07/05':[0.00,0.00,0.00,0.03,0.05,0.05,0.10,0.18,0.08,0.08,0.08,0.03,0.00,0.00],
+  '08/05':[0.00,0.00,0.00,0.03,0.05,0.10,0.20,0.08,0.08,0.05,0.05,0.03,0.00,0.00],
+  '09/05':[0.00,0.00,0.00,0.08,0.15,0.69,0.48,0.00,0.23,0.33,0.18,0.10,0.05,null],
+  '10/05':[0.00,0.00,0.00,0.03,0.08,0.10,0.36,0.00,0.20,0.13,0.08,0.03,0.00,0.00],
+  '11/05':[0.00,0.00,0.03,0.15,0.33,0.30,1.04,0.00,0.48,0.30,0.20,0.10,0.00,null],
+  '12/05':[0.00,0.00,0.05,0.18,0.28,0.36,1.02,0.00,0.48,0.30,0.23,0.08,0.03,null],
+  '13/05':[0.00,0.00,0.00,0.05,0.08,0.13,0.16,0.00,0.08,0.08,0.05,0.05,0.05,0.00],
+  '14/05':[0.00,0.00,0.03,0.10,0.15,0.18,0.33,0.23,0.25,0.18,0.08,0.03,null,null],
+  '15/05':[0.00,0.03,0.03,0.08,0.00,0.33,0.00,0.23,0.33,0.18,0.05,0.00,0.00,0.00],
+  '16/05':[0.00,0.00,0.03,0.08,0.10,0.56,0.00,0.36,0.33,0.23,0.10,0.08,0.03,null],
+  '17/05':[0.00,0.00,0.08,0.03,0.10,0.10,0.28,0.00,0.20,0.23,0.13,0.05,0.00,null],
+  '18/05':[0.00,0.00,0.03,0.10,0.23,0.43,0.84,0.00,0.46,0.33,0.23,0.10,0.05,null],
+  '19/05':[0.00,0.00,0.03,0.08,0.00,0.25,0.00,0.43,0.33,0.18,0.10,0.00,null,null],
+  '20/05':[0.00,0.00,0.03,0.08,0.13,0.18,0.61,0.00,0.41,0.36,0.00,0.10,0.00,0.00],
+  '21/05':[0.00,0.00,0.08,0.20,0.30,0.41,0.94,0.00,0.43,0.28,0.23,0.13,0.00,0.00],
+  '22/05':[0.00,0.00,0.08,0.18,0.30,0.38,0.94,0.00,0.46,0.33,0.25,0.10,0.00,0.00],
+  '23/05':[0.00,0.00,0.08,0.18,0.30,0.38,0.97,0.00,0.46,0.30,0.23,0.10,0.00,0.00],
+  '24/05':[0.00,0.08,0.08,0.18,0.30,0.36,0.94,0.00,0.43,0.33,0.23,0.10,0.00,0.00],
+  '25/05':[0.01,0.03,0.08,0.18,0.30,0.38,0.94,0.00,0.46,0.33,0.23,0.13,null,null],
+  '26/05':[0.01,0.00,0.05,0.18,0.00,0.46,0.00,0.46,0.00,0.23,0.10,0.00,0.00,0.00],
+  '27/05':[0.00,0.00,0.00,0.03,0.05,0.10,0.10,0.26,0.00,0.15,0.10,0.05,0.03,0.00],
+  '28/05':[0.03,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.03,0.08,0.15,0.30,0.89,0.41],
+  '29/05':[0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.08,0.20,0.30,0.41,0.46,0.43],
+  '30/05':[0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.08,0.18,0.28,0.33,0.89,0.43],
+  '31/05':[0.00,0.00,0.00,0.00,0.00,0.00,0.01,0.01,0.08,0.20,0.30,0.41,0.92,0.43],
+  '01/06':[0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.03,0.05,0.08,0.10,0.46,0.00],
+  '02/06':[0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.03,0.05,0.10,0.15,0.28,0.00]
+};
+const FM_DPV={'27/04':1.60,'28/04':1.70,'29/04':1.80,'30/04':2.20,'04/05':1.80,'05/05':2.30,'06/05':1.70,'07/05':0.50,'08/05':0.50,'09/05':1.70,'10/05':1.20,'11/05':2.45,'12/05':1.85,'13/05':0.39,'14/05':1.19,'15/05':1.46,'16/05':1.69,'17/05':1.09,'18/05':1.94,'19/05':1.57,'20/05':1.69,'21/05':1.65,'22/05':1.89,'23/05':2.00,'24/05':1.85,'25/05':1.66,'26/05':1.62,'27/05':0.69,'28/05':1.70,'29/05':2.00,'30/05':2.00,'31/05':1.80,'01/06':1.40,'02/06':0.70};
+const FM_ETO={'27/04':1.77,'28/04':1.76,'29/04':2.61,'30/04':2.47,'04/05':2.43,'05/05':2.67,'06/05':1.28,'07/05':0.68,'08/05':0.67,'09/05':2.32,'10/05':1.02,'11/05':2.93,'12/05':3.01,'13/05':0.68,'14/05':1.55,'15/05':1.26,'16/05':1.90,'17/05':1.20,'18/05':2.80,'19/05':1.40,'20/05':1.90,'21/05':3.00,'22/05':3.02,'23/05':3.00,'24/05':2.95,'25/05':3.03,'26/05':1.48,'27/05':0.90,'28/05':1.89,'29/05':2.49,'30/05':2.82,'31/05':2.92,'01/06':1.67,'02/06':0.69};
+
+const C_DIARIO=[
+  {d:'25/05',w:0,n:'Lun'},{d:'26/05',w:0,n:'Mar'},{d:'27/05',w:0,n:'Mié'},
+  {d:'28/05',w:0,n:'Jue'},{d:'29/05',w:0,n:'Vie'},{d:'30/05',w:0,n:'Sáb'},{d:'31/05',w:0,n:'Dom'},
+  {d:'01/06',w:1,n:'Lun'},{d:'02/06',w:1,n:'Mar'},
+];
+const MESES=[
+  {key:'abr',label:'Abril',year:'2026',dias:['27/04','28/04','29/04','30/04']},
+  {key:'may',label:'Mayo', year:'2026',dias:['04/05','05/05','06/05','07/05','08/05','09/05','10/05','11/05','12/05','13/05','14/05','15/05','16/05','17/05','18/05','19/05','20/05','21/05','22/05','23/05','24/05','25/05','26/05','27/05','28/05','29/05','30/05','31/05']},
+  {key:'jun',label:'Junio',year:'2026',dias:['01/06','02/06']}
+];
+
+function cc(v){return v===null?'cn':v<0.5?'cb':v<=1.5?'cg':'cr';}
+function fmtD(v,m){return v===null?'—':(m==='dpv'?v.toFixed(1):v.toFixed(2));}
+function avgMes(src,dias){return H.map((_,i)=>{const vs=dias.map(d=>src[d]?.[i]).filter(v=>v!=null);return vs.length?parseFloat((vs.reduce((a,b)=>a+b,0)/vs.length).toFixed(2)):null;});}
+function avgFoot(fm,dias){const vs=dias.filter(d=>fm[d]!=null).map(d=>fm[d]);return vs.length?parseFloat((vs.reduce((a,b)=>a+b,0)/vs.length).toFixed(2)):null;}
+function maxDay(src,d){const vs=(src[d]||[]).filter(v=>v!=null);return vs.length?Math.max(...vs):null;}
+
+/* ── DIARIO ── */
+function buildDiario(){
+  const dat=md==='dpv'?ALL_DPV:ALL_ETO,foot=md==='dpv'?FM_DPV:FM_ETO;
+  const fl=md==='dpv'?'DPV máx./día':'ETO total/día';
+  let h='<thead><tr><th class="thr" rowspan="2">Hora</th>';
+  h+='<th class="hw22" colspan="7">Semana 22 · 25–31 Mayo</th>';
+  h+='<th class="hw21" colspan="1">Semana 23 · Jun</th>';
+  h+='</tr><tr>';
+  for(const c of C_DIARIO)h+=`<th class="${c.w===0?'dh22':'dh21'}">${c.n}<br>${c.d}</th>`;
+  h+='</tr></thead><tbody>';
+  for(let i=0;i<H.length;i++){
+    h+=`<tr><td class="tdr">${H[i]}</td>`;
+    for(const c of C_DIARIO){const v=dat[c.d]?.[i]??null;h+=`<td class="${cc(v)}">${fmtD(v,md)}</td>`;}
+    h+='</tr>';
+  }
+  h+=`<tr class="tft"><td class="tdr">${fl}</td>`;
+  for(const c of C_DIARIO){const v=foot[c.d]??null;h+=`<td class="${c.w===0?'f22':'f21'}">${v!=null?v.toFixed(2):'—'}</td>`;}
+  h+='</tr></tbody>';
+  document.getElementById('vis-content').innerHTML=`<div class="wrap"><table>${h}</table></div>`;
+}
+
+/* ── MENSUAL ── */
+function buildMensual(){
+  const src=md==='dpv'?ALL_DPV:ALL_ETO,fmD=md==='dpv'?FM_DPV:FM_ETO;
+  const fl=md==='dpv'?'Prom. DPV máx./día':'Media ETO diaria';
+  const avgs=MESES.map(m=>({...m,hAvg:avgMes(src,m.dias),fAvg:avgFoot(fmD,m.dias.filter(d=>fmD[d]!=null))}));
+  const years=[...new Set(MESES.map(m=>m.year))];
+  let h='<thead><tr><th class="thr" rowspan="2">Hora</th>';
+  for(const yr of years){const cnt=MESES.filter(m=>m.year===yr).length;h+=`<th class="hyr" colspan="${cnt}">${yr}</th>`;}
+  h+='</tr><tr>';
+  for(const m of MESES)h+=`<th class="${m.key==='abr'?'hmabr':m.key==='may'?'hmmay':'hmjun'}">${m.label}<br><span style="font-weight:400;font-size:9.5px">${m.dias.length} día${m.dias.length>1?'s':''}</span></th>`;
+  h+='</tr></thead><tbody>';
+  for(let i=0;i<H.length;i++){
+    h+=`<tr><td class="tdr">${H[i]}</td>`;
+    for(const m of avgs){const v=m.hAvg[i];h+=`<td class="${cc(v)}">${v==null?'—':v.toFixed(2)}</td>`;}
+    h+='</tr>';
+  }
+  h+=`<tr class="tavg"><td class="tdr">Prom. horario</td>`;
+  for(const m of avgs){
+    const all=m.hAvg.filter(v=>v!=null);
+    const avg=all.length?parseFloat((all.reduce((a,b)=>a+b,0)/all.length).toFixed(2)):null;
+    h+=`<td class="favg">${avg!=null?avg.toFixed(2):'—'}</td>`;
+  }
+  h+='</tr>';
+  h+=`<tr class="tft"><td class="tdr">${fl}</td>`;
+  for(const m of avgs)h+=`<td class="${m.key==='abr'?'fabr':m.key==='may'?'fmay':'fjun'}">${m.fAvg!=null?m.fAvg.toFixed(2):'—'}</td>`;
+  h+='</tr></tbody>';
+  document.getElementById('vis-content').innerHTML=`<div class="wrap"><table>${h}</table></div>`;
+}
+
+/* ── HORAS: doble arco DPV (exterior) + ETO (interior) ── */
+let selDay='27/05';
+
+function buildHoras(){
+  const dpvVals=ALL_DPV[selDay]||Array(14).fill(null);
+  const etoVals=ALL_ETO[selDay]||Array(14).fill(null);
+  const maxDPV=maxDay(ALL_DPV,selDay);
+  const maxETO=maxDay(ALL_ETO,selDay);
+
+  const W=860, SH=500, cx=430, cy=462;
+  // Nivel exterior: DPV — burbujas fuera del arco externo
+  const RO_D=238, RI_D=196, RB_D=282, RH=158, BR_D=21;
+  // Nivel intermedio: ETO — burbujas entre los dos arcos (radio ~170, entre RI_D=196 y RO_E=160)
+  const RO_E=186, RI_E=148, RB_E=170, BR_E=18;
+  const START=175, END=5, N=14;
+
+  function pt(i,r){
+    const deg=START+(END-START)*i/(N-1),rad=deg*Math.PI/180;
+    return[+(cx+r*Math.cos(rad)).toFixed(1),+(cy-r*Math.sin(rad)).toFixed(1)];
+  }
+  function polyArc(ro,ri,steps){
+    let outer=[],inner=[];
+    for(let k=0;k<=steps;k++){
+      const deg=START+(END-START)*k/steps,rad=deg*Math.PI/180;
+      outer.push([+(cx+ro*Math.cos(rad)).toFixed(1),+(cy-ro*Math.sin(rad)).toFixed(1)]);
+      inner.push([+(cx+ri*Math.cos(rad)).toFixed(1),+(cy-ri*Math.sin(rad)).toFixed(1)]);
+    }
+    let d=`M${outer[0][0]} ${outer[0][1]}`;
+    for(let k=1;k<=steps;k++)d+=` L${outer[k][0]} ${outer[k][1]}`;
+    for(let k=steps;k>=0;k--)d+=` L${inner[k][0]} ${inner[k][1]}`;
+    return d+'Z';
+  }
+  function bc(v){
+    if(v===null)return['#94A3B8','#fff','#64748B'];
+    if(v<0.5)   return['#2563EB','#fff','#1D4ED8'];
+    if(v<=1.5)  return['#16A34A','#fff','#166534'];
+    return          ['#DC2626','#fff','#991B1B'];
+  }
+  const HRS=['06','07','08','09','10','11','12','13','14','15','16','17','18','19'];
+
+  // Totales del día
+  const fDPV=FM_DPV[selDay],fETO=FM_ETO[selDay];
+
+  let s=`<svg viewBox="0 0 ${W} ${SH}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;border-radius:12px">
+<defs>
+  <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#bae6fd"/>
+    <stop offset="55%" stop-color="#e0f2fe"/>
+    <stop offset="100%" stop-color="#fef9c3"/>
+  </linearGradient>
+  <radialGradient id="sunG" cx="12%" cy="14%" r="22%">
+    <stop offset="0%" stop-color="#fef08a" stop-opacity="0.85"/>
+    <stop offset="100%" stop-color="#fef08a" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="arcDG" x1="0.5" y1="0" x2="0.5" y2="1">
+    <stop offset="0%" stop-color="#7dd3fc" stop-opacity="0.55"/>
+    <stop offset="100%" stop-color="#dbeafe" stop-opacity="0.22"/>
+  </linearGradient>
+  <linearGradient id="arcEG" x1="0.5" y1="0" x2="0.5" y2="1">
+    <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.55"/>
+    <stop offset="100%" stop-color="#d1fae5" stop-opacity="0.22"/>
+  </linearGradient>
+  <linearGradient id="groundG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#92400e"/>
+    <stop offset="100%" stop-color="#c8a050"/>
+  </linearGradient>
+  <filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#00000030"/></filter>
+</defs>
+<rect width="${W}" height="${SH}" fill="url(#skyG)" rx="12"/>
+<rect width="${W}" height="${SH}" fill="url(#sunG)"/>
+<rect x="0" y="${cy}" width="${W}" height="${SH-cy}" fill="url(#groundG)"/>
+<rect x="0" y="${cy-4}" width="${W}" height="7" fill="#78350f" opacity="0.5"/>
+
+<!-- Arco exterior: DPV -->
+<path d="${polyArc(RO_D,RI_D,80)}" fill="url(#arcDG)" stroke="#38bdf8" stroke-width="1.5" opacity="0.9"/>
+<!-- Arco interior: ETO -->
+<path d="${polyArc(RO_E,RI_E,80)}" fill="url(#arcEG)" stroke="#34d399" stroke-width="1.5" opacity="0.9"/>`;
+
+  // Etiqueta DPV: izquierda del arco externo, antes de la primera burbuja
+  const[lxD,lyD]=pt(0,(RO_D+RI_D)/2);
+  const[lxDb,lyDb]=pt(0,RB_D);
+  s+=`<text x="${lxDb-32}" y="${lyDb+4}" text-anchor="end" font-size="12" font-weight="700" fill="#185FA5" font-family="Segoe UI,sans-serif">DPV (kPa) ▶</text>`;
+  // Etiqueta ETO: extremo derecho del arco intermedio
+  const[rxE,ryE]=pt(N-1,(RO_E+RI_E)/2);
+  s+=`<text x="${rxE+8}" y="${ryE+4}" text-anchor="start" font-size="12" font-weight="700" fill="#0F6E56" font-family="Segoe UI,sans-serif">◀ ETO (mm/h)</text>`;
+
+  // Marcas horarias dentro de la franja celeste (DPV)
+  for(let i=0;i<N;i++){
+    const[hx,hy]=pt(i,(RO_D+RI_D)/2);
+    s+=`<text x="${hx}" y="${+hy+4}" text-anchor="middle" font-size="11" fill="#0c4a6e" font-weight="700" font-family="Segoe UI,sans-serif">${HRS[i]}</text>`;
+  }
+
+  // Separadores radiales en arco DPV
+  for(let i=0;i<N;i++){
+    const[ix,iy]=pt(i,RI_D),[ox,oy]=pt(i,RO_D);
+    s+=`<line x1="${ix}" y1="${iy}" x2="${ox}" y2="${oy}" stroke="#0369a1" stroke-width="1" opacity="0.3"/>`;
+  }
+  // Separadores radiales en arco ETO
+  for(let i=0;i<N;i++){
+    const[ix,iy]=pt(i,RI_E),[ox,oy]=pt(i,RO_E);
+    s+=`<line x1="${ix}" y1="${iy}" x2="${ox}" y2="${oy}" stroke="#059669" stroke-width="1" opacity="0.3"/>`;
+  }
+
+  // Burbujas DPV (exterior, encima del arco externo)
+  for(let i=0;i<N;i++){
+    const[bx,by]=pt(i,RB_D),[ox,oy]=pt(i,RO_D);
+    const v=dpvVals[i];
+    const[fill,tc,stroke]=bc(v);
+    const lbl=v===null?'—':v.toFixed(1);
+    const isMax=(v!==null&&v===maxDPV);
+    s+=`<line x1="${ox}" y1="${oy}" x2="${bx}" y2="${by}" stroke="${stroke}" stroke-width="1" opacity="0.3"/>`;
+    s+=`<circle cx="${bx}" cy="${+by+2}" r="${BR_D}" fill="rgba(0,0,0,0.08)"/>`;
+    s+=`<circle cx="${bx}" cy="${by}" r="${isMax?BR_D+3:BR_D}" fill="${fill}" stroke="${isMax?'#fbbf24':stroke}" stroke-width="${isMax?3:1.5}" filter="url(#sh)"/>`;
+    s+=`<text x="${bx}" y="${+by+4}" text-anchor="middle" font-size="11" font-weight="700" fill="${tc}" font-family="Segoe UI,sans-serif">${lbl}</text>`;
+  }
+
+  // Burbujas ETO (entre los dos arcos)
+  for(let i=0;i<N;i++){
+    const[bx,by]=pt(i,RB_E),[ix,iy]=pt(i,RO_E);
+    const v=etoVals[i];
+    const[fill,tc,stroke]=bc(v);
+    const lbl=v===null?'—':v.toFixed(2);
+    const isMax=(v!==null&&v===maxETO);
+    s+=`<line x1="${ix}" y1="${iy}" x2="${bx}" y2="${by}" stroke="${stroke}" stroke-width="1" opacity="0.3"/>`;
+    s+=`<circle cx="${bx}" cy="${+by+2}" r="${BR_E}" fill="rgba(0,0,0,0.08)"/>`;
+    s+=`<circle cx="${bx}" cy="${by}" r="${isMax?BR_E+3:BR_E}" fill="${fill}" stroke="${isMax?'#fbbf24':stroke}" stroke-width="${isMax?3:1.5}" filter="url(#sh)"/>`;
+    s+=`<text x="${bx}" y="${+by+4}" text-anchor="middle" font-size="10" font-weight="700" fill="${tc}" font-family="Segoe UI,sans-serif">${lbl}</text>`;
+  }
+
+  // Stats centrales
+  const statY=cy-28;
+  s+=`<text x="${cx}" y="${statY-14}" text-anchor="middle" font-size="11.5" font-weight="700" fill="#185FA5" font-family="Segoe UI,sans-serif">DPV máx.: ${fDPV!=null?fDPV.toFixed(2)+' kPa':'—'}</text>`;
+  s+=`<text x="${cx}" y="${statY+4}" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0F6E56" font-family="Segoe UI,sans-serif">ETO día: ${fETO!=null?fETO.toFixed(2)+' mm':'—'}</text>`;
+
+  s+=`</svg>`;
+
+  const dayOpts=Object.keys(ALL_DPV).reverse().map(d=>`<option value="${d}"${d===selDay?' selected':''}>${d}</option>`).join('');
+  const selector=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><label style="font-size:10.5px;font-weight:700;color:#0c4a6e;text-transform:uppercase;letter-spacing:.04em">Día:</label><select id="sel-dia" onchange="selDay=this.value;build()" style="font-size:12px;font-weight:700;padding:5px 14px;border-radius:8px;border:2px solid #0369a1;background:#fff;color:#0c4a6e;cursor:pointer;outline:none">${dayOpts}</select></div>`;
+  document.getElementById('vis-content').innerHTML=`<div style="width:72%;min-width:420px">${selector}<div id="arc-wrap">${s}</div></div>`;
+}
+
+/* ── CONTROL ── */
+let vista='diario',md='dpv';
+function build(){
+  document.getElementById('nota-diario').style.display  =vista==='diario' ?'':'none';
+  document.getElementById('nota-mensual').style.display =vista==='mensual'?'':'none';
+  document.getElementById('nota-horas').style.display   =vista==='horas'  ?'':'none';
+  if(vista==='diario')       buildDiario();
+  else if(vista==='mensual') buildMensual();
+  else                       buildHoras();
+}
+function setVista(v){
+  vista=v;
+  document.getElementById('bhoras').className   =v==='horas'  ?'on-view':'';
+  document.getElementById('bdiario').className  =v==='diario' ?'on-view':'';
+  document.getElementById('bmensual').className =v==='mensual'?'on-view':'';
+  updateVarButtons();
+  updateVarButtons();
+build();
+}
+function setVar(v){
+  md=v;
+  document.getElementById('bdpv').className=v==='dpv'?'on-dpv':'';
+  document.getElementById('beto').className=v==='eto'?'on-eto':'';
+  build();
+}
+function updateVarButtons(){
+  const show=vista!=='horas';
+  document.getElementById('bdpv').style.display=show?'':'none';
+  document.getElementById('beto').style.display=show?'':'none';
+  document.querySelector('.bar-sep').style.display=show?'':'none';
+}
+build();
+</script>
+</body>
+</html>
